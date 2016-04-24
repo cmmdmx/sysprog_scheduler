@@ -1,0 +1,9 @@
+".\Objects\main.obj",
+".\Objects\process_a.obj",
+".\Objects\process_b.obj",
+".\Objects\process_c.obj",
+".\Objects\init.obj",
+".\Objects\scheduler.obj",
+".\Objects\fkt_text.obj" 
+TO ".\Objects\new" 
+PRINT(".\Listings\new.m51") RAMSIZE(256) 

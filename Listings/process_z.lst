@@ -1,0 +1,428 @@
+A51 MACRO ASSEMBLER  PROCESS_Z                                                            04/24/2016 11:25:05 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.02c
+OBJECT MODULE PLACED IN .\Objects\process_z.obj
+ASSEMBLER INVOKED BY: P:\Keil\C51\BIN\A51.EXE process_z.a51 SET(SMALL) DEBUG PRINT(.\Listings\process_z.lst) OBJECT(.\Ob
+                      jects\process_z.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     $nomod51 
+                       2     ;#include <Reg517a.inc>
+                +1     3     ;-------------------------------------------------------------------------------
+                +1     4     ; Copyright 1995-1996 KEIL Software, Inc.
+                +1     5     ; 80517A Processor Declarations
+                +1     6     ;-------------------------------------------------------------------------------
+                +1     7  +1 $save 
+                +1   199  +1 $restore 
+                +1   200     
+                     201     
+                     202     
+                     203     public  fkt_text
+                     204     
+                     205     my_code segment CODE
+----                 206             rseg    my_code
+                     207     
+0000                 208     fkt_text: ; Ausgabe auf Seriel 1 (S1BUF)
+                     209     ;------------------------------
+                     210     ; Serial Interface 1
+                     211     ; 8 Datenbits, variable Baudrate
+                     212     ;       -> Mode B
+                     213     ;       => SM = 1
+                     214     ;       SETB    SM; geht nicht, s.o. 
+                     215     ; Empfang freigeben -> REN1 = 1
+                     216     ;       SETB    REN1; geht nicht, s.o.
+                     217     ; noch nichts empfangen -> TI1 =0 
+                     218     ;       CLR     TI1; geht nicht, s.o.
+                     219     ;       aber S1CON = SM|.|.|REN1|.|.|TI1|.
+0000 E59B            220             MOV     A, S1CON
+0002 4490            221             ORL     A, #10010000B
+0004 54FD            222             ANL     A, #1111$1101B
+0006 F59B            223             MOV     S1CON, A
+                     224     ; Baudrate
+                     225     ;       Baudrate = XTAL /(32*(2^10-S1REL))
+                     226     ;       9600 1/s -> S1REL = 3B2h
+                     227     ;               => S1RELH = 3
+                     228     ;               => S1RELL = B2H
+0008 75BB03          229             MOV     S1RELH, # 3
+000B 759DB2          230             MOV     S1RELL, #0B2h
+                     231     ; senden bereit
+000E 439B02          232             ORL S1CON,#0000$0010B ;Set of TI1
+                     233     ;---------------------------------------
+0011                 234     txt_init:
+0011 7FFF            235             mov     r7, #0xff;
+0013                 236     txt_schleife:
+0013 7800            237             mov     r0, #0
+0015 0F              238             inc     r7
+0016 53070F          239             anl     7, #0x0f        ; eigendlich ANL R7, #0x0F; zum zählen bis 15
+                     240             ;
+0019 EF              241             mov     a, r7
+001A 120000   F      242             call    Stelle5
+001D E8              243             mov     a, r0
+001E 33              244             rlc     a
+001F F8              245             mov     r0, a   
+                     246             ;
+0020 EF              247             mov     a, r7
+0021 120000   F      248             call    Stelle4
+A51 MACRO ASSEMBLER  PROCESS_Z                                                            04/24/2016 11:25:05 PAGE     2
+
+0024 E8              249             mov     a, r0
+0025 33              250             rlc     a
+0026 F8              251             mov     r0, a   
+                     252             ;
+0027 EF              253             mov     a, r7
+0028 120000   F      254             call    Stelle3
+002B E8              255             mov     a, r0
+002C 33              256             rlc     a
+002D F8              257             mov     r0, a   
+                     258             ;
+002E EF              259             mov     a, r7
+002F 120000   F      260             call    Stelle2
+0032 E8              261             mov     a, r0
+0033 33              262             rlc     a
+0034 F8              263             mov     r0, a   
+                     264             ;
+0035 EF              265             mov     a, r7
+0036 120000   F      266             call    Stelle1
+0039 E8              267             mov     a, r0
+003A 33              268             rlc     a
+003B F8              269             mov     r0, a   
+                     270             ; nach 
+003C E8              271             mov     a, r0
+003D 2440            272             add     a, #64
+003F F8              273             mov     r0, a   
+0040 00              274             nop
+0041                 275     txt_warten:
+                     276     ;       jbc TI0, txt_ausgabe
+                     277     ;       setb    wdt
+                     278     ;       setb    swdt
+                     279             ; Warteschleife zur Zeitverzögerung
+0041 7B10            280             mov     r3, #16
+0043                 281     txt_R3:
+0043 7A00            282             mov     r2, #0
+0045                 283     txt_R2:
+0045 7900            284             mov     r1, #0
+0047                 285     txt_R1:
+0047 00              286             nop
+0048 D9FD            287             djnz    r1, txt_R1
+004A 00              288             nop
+004B DAF8            289             djnz    r2, txt_R2
+004D 00              290             nop
+004E DBF3            291             djnz    r3, txt_R3
+                     292     
+                     293     ;       jmp     txt_warten
+                     294     
+0050                 295     txt_ser:
+                     296     ;test ob gesendet S1
+0050 E59B            297             MOV A,S1CON
+0052 20E102          298             JB ACC.1, txt_ausgabe_S1 ;TI1
+0055 80F9            299             jmp     txt_ser
+                     300     ;-----------
+0057                 301     txt_ausgabe_S1:
+0057 539BFD          302             ANL S1CON,#1111$1101B ;Resetting of TI1
+005A 889C            303             MOV     S1BUF, r0
+005C 80B5            304             jmp     txt_schleife
+                     305     ;
+005E 22              306             ret     ; sollte nie erreicht werden
+                     307     ; ----------------------------------------------------
+005F                 308     Stelle5:
+005F A2E0            309             mov     c, acc.0
+0061 82E1            310             anl     c, acc.1
+0063 B0E3            311             anl     c, /acc.3       
+0065 92D1            312                     mov     f1, c           ; sichern
+0067 A2E3            313             mov     c, acc.3
+0069 B0E1            314             anl     c, /acc.1
+A51 MACRO ASSEMBLER  PROCESS_Z                                                            04/24/2016 11:25:05 PAGE     3
+
+006B 72D1            315                     orl     c, f1
+006D 92D1            316                     mov     f1, c
+006F A2E1            317             mov     c, acc.1
+0071 82E2            318             anl     c, acc.2
+0073 72D1            319                     orl     c, f1
+0075 92D1            320                     mov     f1, c
+0077 A2E0            321             mov     c, acc.0
+0079 82E2            322             anl     c, acc.2
+007B 72D1            323                     orl     c, f1
+007D 22              324             ret
+                     325     
+007E                 326     Stelle4:
+007E A2E0            327             mov     c, acc.0
+0080 B0E1            328             anl     c, /acc.1
+0082 B0E2            329             anl     c, /acc.2
+0084 B0E3            330             anl     c, /acc.3
+0086 92D1            331                     mov     f1, c
+0088 A2E1            332             mov     c, acc.1
+008A 82E2            333             anl     c, acc.2
+008C 82E3            334             anl     c, acc.3
+008E 72D1            335                     orl     c, f1
+0090 22              336             ret
+0091                 337     Stelle3:
+0091 A2E0            338             mov     c, acc.0
+0093 82E1            339             anl     c, acc.1
+0095 B0E3            340             anl     c, /acc.3
+0097 92D1            341                     mov     f1, c
+0099 A2E0            342             mov     c, acc.0
+009B B3              343             cpl     c
+009C B0E1            344             anl     c, /acc.1
+009E B0E2            345             anl     c, /acc.2
+00A0 72D1            346                     orl     c, f1
+00A2 92D1            347                     mov     f1, c
+00A4 A2E3            348             mov     c, acc.3
+00A6 B0E2            349             anl     c, /acc.2
+00A8 B0E0            350             anl     c, /acc.0
+00AA 72D1            351                     orl     c, f1
+00AC 92D1            352                     mov     f1, c
+00AE A2E0            353             mov     c, acc.0
+00B0 B0E1            354             anl     c, /acc.1
+00B2 82E3            355             anl     c, acc.3
+00B4 72D1            356                     orl     c, f1
+00B6 92D1            357                     mov     f1, c
+00B8 A2E2            358             mov     c, acc.2
+00BA 82E1            359             anl     c, acc.1
+00BC 72D1            360                     orl     c, f1
+00BE 22              361             ret
+00BF                 362     Stelle2:
+00BF A2E1            363             mov     c, acc.1
+00C1 B0E2            364             anl     c, /acc.2
+00C3 B0E3            365             anl     c, /acc.3
+00C5 92D1            366                     mov     f1, c
+00C7 A2E0            367             mov     c, acc.0
+00C9 B0E1            368             anl     c, /acc.1
+00CB 82E2            369             anl     c, acc.2
+00CD B0E3            370             anl     c, /acc.3
+00CF 72D1            371                     orl     c, f1
+00D1 92D1            372                     mov     f1, c
+00D3 A2E1            373             mov     c, acc.1
+00D5 B0E0            374             anl     c, /acc.0
+00D7 B0E2            375             anl     c, /acc.2
+00D9 72D1            376                     orl     c, f1
+00DB 92D1            377                     mov     f1, c
+00DD A2E3            378             mov     c, acc.3
+00DF 82E2            379             anl     c, acc.2
+00E1 B0E0            380             anl     c, /acc.0
+A51 MACRO ASSEMBLER  PROCESS_Z                                                            04/24/2016 11:25:05 PAGE     4
+
+00E3 72D1            381                     orl     c, f1
+00E5 92D1            382                     mov     f1, c
+00E7 A2E1            383             mov     c, acc.1
+00E9 82E2            384             anl     c, acc.2
+00EB 82E3            385             anl     c, acc.3
+00ED 72D1            386                     orl     c, f1
+00EF 22              387             ret
+00F0                 388     Stelle1:
+00F0 A2E0            389             mov     c, acc.0
+00F2 82E2            390             anl     c, acc.2
+00F4 B0E3            391             anl     c, /acc.3
+00F6 92D1            392                     mov     f1, c
+00F8 A2E1            393             mov     c, acc.1
+00FA 82E3            394             anl     c, acc.3
+00FC 72D1            395                     orl     c, f1
+00FE 92D1            396                     mov     f1, c
+0100 A2E0            397             mov     c, acc.0
+0102 82E1            398             anl     c, acc.1
+0104 72D1            399                     orl     c, f1
+0106 22              400             ret
+                     401     
+                     402     end
+A51 MACRO ASSEMBLER  PROCESS_Z                                                            04/24/2016 11:25:05 PAGE     5
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+AC . . . . . . . .  B ADDR   00D0H.6 A   
+ACC. . . . . . . .  D ADDR   00E0H   A   
+ADCON0 . . . . . .  D ADDR   00D8H   A   
+ADCON1 . . . . . .  D ADDR   00DCH   A   
+ADDATH . . . . . .  D ADDR   00D9H   A   
+ADDATL . . . . . .  D ADDR   00DAH   A   
+ADEX . . . . . . .  B ADDR   00D8H.5 A   
+ADM. . . . . . . .  B ADDR   00D8H.3 A   
+ARCON. . . . . . .  D ADDR   00EFH   A   
+B. . . . . . . . .  D ADDR   00F0H   A   
+BD . . . . . . . .  B ADDR   00D8H.7 A   
+BSY. . . . . . . .  B ADDR   00D8H.4 A   
+CC4EN. . . . . . .  D ADDR   00C9H   A   
+CCEN . . . . . . .  D ADDR   00C1H   A   
+CCH1 . . . . . . .  D ADDR   00C3H   A   
+CCH2 . . . . . . .  D ADDR   00C5H   A   
+CCH3 . . . . . . .  D ADDR   00C7H   A   
+CCH4 . . . . . . .  D ADDR   00CFH   A   
+CCL1 . . . . . . .  D ADDR   00C2H   A   
+CCL2 . . . . . . .  D ADDR   00C4H   A   
+CCL3 . . . . . . .  D ADDR   00C6H   A   
+CCL4 . . . . . . .  D ADDR   00CEH   A   
+CLK. . . . . . . .  B ADDR   00D8H.6 A   
+CLRMSK . . . . . .  D ADDR   00A6H   A   
+CMEN . . . . . . .  D ADDR   00F6H   A   
+CMH0 . . . . . . .  D ADDR   00D3H   A   
+CMH1 . . . . . . .  D ADDR   00D5H   A   
+CMH2 . . . . . . .  D ADDR   00D7H   A   
+CMH3 . . . . . . .  D ADDR   00E3H   A   
+CMH4 . . . . . . .  D ADDR   00E5H   A   
+CMH5 . . . . . . .  D ADDR   00E7H   A   
+CMH6 . . . . . . .  D ADDR   00F3H   A   
+CMH7 . . . . . . .  D ADDR   00F5H   A   
+CML0 . . . . . . .  D ADDR   00D2H   A   
+CML1 . . . . . . .  D ADDR   00D4H   A   
+CML2 . . . . . . .  D ADDR   00D6H   A   
+CML3 . . . . . . .  D ADDR   00E2H   A   
+CML4 . . . . . . .  D ADDR   00E4H   A   
+CML5 . . . . . . .  D ADDR   00E6H   A   
+CML6 . . . . . . .  D ADDR   00F2H   A   
+CML7 . . . . . . .  D ADDR   00F4H   A   
+CMSEL. . . . . . .  D ADDR   00F7H   A   
+COMCLRH. . . . . .  D ADDR   00A4H   A   
+COMCLRL. . . . . .  D ADDR   00A3H   A   
+COMSETH. . . . . .  D ADDR   00A2H   A   
+COMSETL. . . . . .  D ADDR   00A1H   A   
+CRCH . . . . . . .  D ADDR   00CBH   A   
+CRCL . . . . . . .  D ADDR   00CAH   A   
+CTCON. . . . . . .  D ADDR   00E1H   A   
+CTRELH . . . . . .  D ADDR   00DFH   A   
+CTRELL . . . . . .  D ADDR   00DEH   A   
+CY . . . . . . . .  B ADDR   00D0H.7 A   
+DPH. . . . . . . .  D ADDR   0083H   A   
+DPL. . . . . . . .  D ADDR   0082H   A   
+DPSEL. . . . . . .  D ADDR   0092H   A   
+EADC . . . . . . .  B ADDR   00B8H.0 A   
+EAL. . . . . . . .  B ADDR   00A8H.7 A   
+ES . . . . . . . .  B ADDR   00A8H.4 A   
+ET0. . . . . . . .  B ADDR   00A8H.1 A   
+ET1. . . . . . . .  B ADDR   00A8H.3 A   
+A51 MACRO ASSEMBLER  PROCESS_Z                                                            04/24/2016 11:25:05 PAGE     6
+
+ET2. . . . . . . .  B ADDR   00A8H.5 A   
+EX0. . . . . . . .  B ADDR   00A8H.0 A   
+EX1. . . . . . . .  B ADDR   00A8H.2 A   
+EX2. . . . . . . .  B ADDR   00B8H.1 A   
+EX3. . . . . . . .  B ADDR   00B8H.2 A   
+EX4. . . . . . . .  B ADDR   00B8H.3 A   
+EX5. . . . . . . .  B ADDR   00B8H.4 A   
+EX6. . . . . . . .  B ADDR   00B8H.5 A   
+EXEN2. . . . . . .  B ADDR   00B8H.7 A   
+EXF2 . . . . . . .  B ADDR   00C0H.7 A   
+F0 . . . . . . . .  B ADDR   00D0H.5 A   
+F1 . . . . . . . .  B ADDR   00D0H.1 A   
+FKT_TEXT . . . . .  C ADDR   0000H   R   SEG=MY_CODE
+I2FR . . . . . . .  B ADDR   00C8H.5 A   
+I3FR . . . . . . .  B ADDR   00C8H.6 A   
+IADC . . . . . . .  B ADDR   00C0H.0 A   
+IE0. . . . . . . .  B ADDR   0088H.1 A   
+IE1. . . . . . . .  B ADDR   0088H.3 A   
+IEN0 . . . . . . .  D ADDR   00A8H   A   
+IEN1 . . . . . . .  D ADDR   00B8H   A   
+IEN2 . . . . . . .  D ADDR   009AH   A   
+IEX2 . . . . . . .  B ADDR   00C0H.1 A   
+IEX3 . . . . . . .  B ADDR   00C0H.2 A   
+IEX4 . . . . . . .  B ADDR   00C0H.3 A   
+IEX5 . . . . . . .  B ADDR   00C0H.4 A   
+IEX6 . . . . . . .  B ADDR   00C0H.5 A   
+INT0 . . . . . . .  B ADDR   00B0H.2 A   
+INT1 . . . . . . .  B ADDR   00B0H.3 A   
+IP0. . . . . . . .  D ADDR   00A9H   A   
+IP1. . . . . . . .  D ADDR   00B9H   A   
+IRCON. . . . . . .  D ADDR   00C0H   A   
+IRCON1 . . . . . .  D ADDR   00D1H   A   
+IT0. . . . . . . .  B ADDR   0088H.0 A   
+IT1. . . . . . . .  B ADDR   0088H.2 A   
+MD0. . . . . . . .  D ADDR   00E9H   A   
+MD1. . . . . . . .  D ADDR   00EAH   A   
+MD2. . . . . . . .  D ADDR   00EBH   A   
+MD3. . . . . . . .  D ADDR   00ECH   A   
+MD4. . . . . . . .  D ADDR   00EDH   A   
+MD5. . . . . . . .  D ADDR   00EEH   A   
+MX0. . . . . . . .  B ADDR   00D8H.0 A   
+MX1. . . . . . . .  B ADDR   00D8H.1 A   
+MX2. . . . . . . .  B ADDR   00D8H.2 A   
+MY_CODE. . . . . .  C SEG    0107H       REL=UNIT
+OV . . . . . . . .  B ADDR   00D0H.2 A   
+P. . . . . . . . .  B ADDR   00D0H.0 A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+P4 . . . . . . . .  D ADDR   00E8H   A   
+P5 . . . . . . . .  D ADDR   00F8H   A   
+P6 . . . . . . . .  D ADDR   00FAH   A   
+P7 . . . . . . . .  D ADDR   00DBH   A   
+P8 . . . . . . . .  D ADDR   00DDH   A   
+PCON . . . . . . .  D ADDR   0087H   A   
+PSW. . . . . . . .  D ADDR   00D0H   A   
+RB80 . . . . . . .  B ADDR   0098H.2 A   
+RD . . . . . . . .  B ADDR   00B0H.7 A   
+REN0 . . . . . . .  B ADDR   0098H.4 A   
+RI0. . . . . . . .  B ADDR   0098H.0 A   
+RS0. . . . . . . .  B ADDR   00D0H.3 A   
+RS1. . . . . . . .  B ADDR   00D0H.4 A   
+RXD. . . . . . . .  B ADDR   00B0H.0 A   
+S0BUF. . . . . . .  D ADDR   0099H   A   
+S0CON. . . . . . .  D ADDR   0098H   A   
+A51 MACRO ASSEMBLER  PROCESS_Z                                                            04/24/2016 11:25:05 PAGE     7
+
+S0RELH . . . . . .  D ADDR   00BAH   A   
+S0RELL . . . . . .  D ADDR   00AAH   A   
+S1BUF. . . . . . .  D ADDR   009CH   A   
+S1CON. . . . . . .  D ADDR   009BH   A   
+S1RELH . . . . . .  D ADDR   00BBH   A   
+S1RELL . . . . . .  D ADDR   009DH   A   
+SETMSK . . . . . .  D ADDR   00A5H   A   
+SM0. . . . . . . .  B ADDR   0098H.7 A   
+SM1. . . . . . . .  B ADDR   0098H.6 A   
+SM20 . . . . . . .  B ADDR   0098H.5 A   
+SP . . . . . . . .  D ADDR   0081H   A   
+STELLE1. . . . . .  C ADDR   00F0H   R   SEG=MY_CODE
+STELLE2. . . . . .  C ADDR   00BFH   R   SEG=MY_CODE
+STELLE3. . . . . .  C ADDR   0091H   R   SEG=MY_CODE
+STELLE4. . . . . .  C ADDR   007EH   R   SEG=MY_CODE
+STELLE5. . . . . .  C ADDR   005FH   R   SEG=MY_CODE
+SWDT . . . . . . .  B ADDR   00B8H.6 A   
+SYSCON . . . . . .  D ADDR   00B1H   A   
+T0 . . . . . . . .  B ADDR   00B0H.4 A   
+T1 . . . . . . . .  B ADDR   00B0H.5 A   
+T2CM . . . . . . .  B ADDR   00C8H.2 A   
+T2CON. . . . . . .  D ADDR   00C8H   A   
+T2I0 . . . . . . .  B ADDR   00C8H.0 A   
+T2I1 . . . . . . .  B ADDR   00C8H.1 A   
+T2PS . . . . . . .  B ADDR   00C8H.7 A   
+T2R0 . . . . . . .  B ADDR   00C8H.3 A   
+T2R1 . . . . . . .  B ADDR   00C8H.4 A   
+TB80 . . . . . . .  B ADDR   0098H.3 A   
+TCON . . . . . . .  D ADDR   0088H   A   
+TF0. . . . . . . .  B ADDR   0088H.5 A   
+TF1. . . . . . . .  B ADDR   0088H.7 A   
+TF2. . . . . . . .  B ADDR   00C0H.6 A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+TH2. . . . . . . .  D ADDR   00CDH   A   
+TI0. . . . . . . .  B ADDR   0098H.1 A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . .  D ADDR   008BH   A   
+TL2. . . . . . . .  D ADDR   00CCH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+TXD. . . . . . . .  B ADDR   00B0H.1 A   
+TXT_AUSGABE_S1 . .  C ADDR   0057H   R   SEG=MY_CODE
+TXT_INIT . . . . .  C ADDR   0011H   R   SEG=MY_CODE
+TXT_R1 . . . . . .  C ADDR   0047H   R   SEG=MY_CODE
+TXT_R2 . . . . . .  C ADDR   0045H   R   SEG=MY_CODE
+TXT_R3 . . . . . .  C ADDR   0043H   R   SEG=MY_CODE
+TXT_SCHLEIFE . . .  C ADDR   0013H   R   SEG=MY_CODE
+TXT_SER. . . . . .  C ADDR   0050H   R   SEG=MY_CODE
+TXT_WARTEN . . . .  C ADDR   0041H   R   SEG=MY_CODE
+WDT. . . . . . . .  B ADDR   00A8H.6 A   
+WDTH . . . . . . .  D ADDR   0085H   A   
+WDTL . . . . . . .  D ADDR   0084H   A   
+WDTREL . . . . . .  D ADDR   0086H   A   
+WR . . . . . . . .  B ADDR   00B0H.6 A   
+XPAGE. . . . . . .  D ADDR   0091H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
