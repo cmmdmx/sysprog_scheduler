@@ -29,7 +29,7 @@ NAME process_c
 	check_a:											; character a
 		CJNE A, #'a', check_b							; Jump to next label if input is not character a
 		MOV next_process, #1
-		MOV next_process_priority, #0xAA
+		MOV next_process_priority, #0xCC
 		CALL process_start
 		JMP run_c
 		
@@ -49,7 +49,7 @@ NAME process_c
 	check_z:											; character z
 		CJNE A,#'z', run_c								; jump back to main loop of console process if input is not z
 		MOV next_process, #3
-		MOV next_process_priority, #0x55
+		MOV next_process_priority, #0x33
 		CALL process_start
 		JMP run_c
 		
