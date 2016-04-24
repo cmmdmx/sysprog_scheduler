@@ -17,6 +17,7 @@ NAME process_b
 	run_b:
 		MOV ticks, #0
 		SETB TR1
+		SETB ET1
 		
 		MOV B, #'+'
 		CALL write
@@ -25,11 +26,10 @@ NAME process_b
 		
 		loopa:
 			
-		
-		
-		
-		RET
-		
+			MOV A, ticks
+			SUBB A, R0
+			CJNE A, #0, loopa
+			JMP run_b
 		
 	write:	
 		CLR EAL							; deactivate global interrupts
@@ -51,5 +51,6 @@ NAME process_b
 		
 		SETB TR1
 		SETB EAL
+		RETI
 	
 END

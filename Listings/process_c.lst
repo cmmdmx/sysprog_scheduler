@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     1
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
   00B1          +1    55     sfr   SYSCON = 0xB1;
   00B8          +1    56     sfr   IEN1   = 0xB8;
   00B9          +1    57     sfr   IP1    = 0xB9;
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     2
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     2
 
   00BA          +1    58     sfr   S0RELH = 0xBA;
   00BB          +1    59     sfr   S1RELH = 0xBB;
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
   00ED          +1   121     sfr   MD4    = 0xED;
   00EE          +1   122     sfr   MD5    = 0xEE;
   00EF          +1   123     sfr   ARCON  = 0xEF;
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     3
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     3
 
                 +1   124     
   00F0          +1   125     sfr   B      = 0xF0;
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
   009E          +1   187     sbit  SM1    = 0x9E;
   009D          +1   188     sbit  SM20   = 0x9D;
   009C          +1   189     sbit  REN0   = 0x9C;
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     4
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     4
 
   009B          +1   190     sbit  TB80   = 0x9B;
   009A          +1   191     sbit  RB80   = 0x9A;
@@ -269,7 +269,7 @@ LOC  OBJ            LINE     SOURCE
                                           ; character a
 000B B4610B          250                     CJNE A, #'a', check_b                                           ; Jump to n
                              ext label if input is not character a
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     5
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     5
 
 000E 750001   F      251                     MOV next_process, #1
 0011 7500FF   F      252                     MOV next_process_priority, #0xff
@@ -303,7 +303,7 @@ LOC  OBJ            LINE     SOURCE
 003E 80C0            274                     JMP run_c
                      275                     
                      276     END     
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     6
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     6
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -371,7 +371,7 @@ CML7. . . . . . . . .  D ADDR   00F4H   A
 CMSEL . . . . . . . .  D ADDR   00F7H   A   
 COMCLR. . . . . . . .    ----   -----       
 COMCLRH . . . . . . .  D ADDR   00A4H   A   
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     7
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     7
 
 COMCLRL . . . . . . .  D ADDR   00A3H   A   
 COMSET. . . . . . . .    ----   -----       
@@ -439,7 +439,7 @@ MX2 . . . . . . . . .  B ADDR   00D8H.2 A
 NEXT_PROCESS. . . . .  D ADDR   -----       EXT
 NEXT_PROCESS_PRIORITY  D ADDR   -----       EXT
 OV. . . . . . . . . .  B ADDR   00D0H.2 A   
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     8
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     8
 
 P . . . . . . . . . .  B ADDR   00D0H.0 A   
 P0. . . . . . . . . .  D ADDR   0080H   A   
@@ -507,7 +507,7 @@ TR1 . . . . . . . . .  B ADDR   0088H.6 A
 TXD . . . . . . . . .  B ADDR   00B0H.1 A   
 WDT . . . . . . . . .  B ADDR   00A8H.6 A   
 WDTH. . . . . . . . .  D ADDR   0085H   A   
-A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:00:55 PAGE     9
+A51 MACRO ASSEMBLER  PROCESS_C                                                            04/24/2016 13:52:29 PAGE     9
 
 WDTL. . . . . . . . .  D ADDR   0084H   A   
 WDTREL. . . . . . . .  D ADDR   0086H   A   

@@ -389,14 +389,14 @@
               <FilePath>.\init.a51</FilePath>
             </File>
             <File>
-              <FileName>process_z.a51</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\process_z.a51</FilePath>
-            </File>
-            <File>
               <FileName>scheduler.a51</FileName>
               <FileType>2</FileType>
               <FilePath>.\scheduler.a51</FilePath>
+            </File>
+            <File>
+              <FileName>fkt_text.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\fkt_text.a51</FilePath>
             </File>
           </Files>
         </Group>
