@@ -53,7 +53,7 @@ NAME scheduler
 		ADD A, #process_stack
 		MOV R1, A									; stack start adress of process in r1
 		
-		MOV A, next_process							; calculate process start adress
+		MOV A, next_process							; calculate, if yes, jmp to run_b and start again process start adress
 		MOV B, #2
 		MUL AB
 		MOV R6, A
@@ -114,7 +114,7 @@ NAME scheduler
 		
 		MOV A, process_current
 		
-		MOV B, #14									; save state of current running process
+		MOV B, #14									; calculate data storage adress
 		MUL AB
 		ADD A, #process_state
 		MOV R0, A

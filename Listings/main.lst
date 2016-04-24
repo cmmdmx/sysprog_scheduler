@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     1
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
   00B8          +1    55     sfr   IEN1   = 0xB8;
   00B9          +1    56     sfr   IP1    = 0xB9;
   00BA          +1    57     sfr   S0RELH = 0xBA;
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     2
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     2
 
   00BB          +1    58     sfr   S1RELH = 0xBB;
                 +1    59     
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
   00EE          +1   121     sfr   MD5    = 0xEE;
   00EF          +1   122     sfr   ARCON  = 0xEF;
                 +1   123     
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     3
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     3
 
   00F0          +1   124     sfr   B      = 0xF0;
   00F2          +1   125     sfr   CML6   = 0xF2;
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
   009D          +1   187     sbit  SM20   = 0x9D;
   009C          +1   188     sbit  REN0   = 0x9C;
   009B          +1   189     sbit  TB80   = 0x9B;
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     4
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     4
 
   009A          +1   190     sbit  RB80   = 0x9A;
   0099          +1   191     sbit  TI0    = 0x99;
@@ -269,7 +269,7 @@ LOC  OBJ            LINE     SOURCE
                              d in scheduler to check first run
                      246                     
                      247             _code SEGMENT CODE
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     5
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     5
 
 ----                 248                     RSEG _code
                      249                     
@@ -326,7 +326,7 @@ LOC  OBJ            LINE     SOURCE
 003A 00              282                     NOP
 003B 80FD            283                     JMP loop
                      284     END
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     6
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     6
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -394,7 +394,7 @@ COMCLRH . . . . . . .  D ADDR   00A4H   A
 COMCLRL . . . . . . .  D ADDR   00A3H   A   
 COMSET. . . . . . . .    ----   -----       
 COMSETH . . . . . . .  D ADDR   00A2H   A   
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     7
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     7
 
 COMSETL . . . . . . .  D ADDR   00A1H   A   
 CRC . . . . . . . . .    ----   -----       
@@ -462,7 +462,7 @@ MX1 . . . . . . . . .  B ADDR   00D8H.1 A
 MX2 . . . . . . . . .  B ADDR   00D8H.2 A   
 NEXT_PROCESS. . . . .  D ADDR   0000H   R   SEG=MAIN_DATA
 NEXT_PROCESS_PRIORITY  D ADDR   0001H   R   SEG=MAIN_DATA
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     8
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     8
 
 OV. . . . . . . . . .  B ADDR   00D0H.2 A   
 P . . . . . . . . . .  B ADDR   00D0H.0 A   
@@ -530,7 +530,7 @@ TL1 . . . . . . . . .  D ADDR   008BH   A
 TL2 . . . . . . . . .  D ADDR   00CCH   A   
 TMOD. . . . . . . . .  D ADDR   0089H   A   
 TR0 . . . . . . . . .  B ADDR   0088H.4 A   
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     9
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 16:24:48 PAGE     9
 
 TR1 . . . . . . . . .  B ADDR   0088H.6 A   
 TXD . . . . . . . . .  B ADDR   00B0H.1 A   

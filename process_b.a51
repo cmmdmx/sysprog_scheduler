@@ -11,24 +11,33 @@ NAME process_b
 		RSEG _data
 		ticks: DS 1								; ticks : 31 ticks are ~ one second in 8051, 1 tick is 1 overflow of timer 1
 	
+	_bit SEGMENT BIT
+		RSEG _bit
+		active: DBIT 1
+	
 	_code SEGMENT CODE
 		RSEG _code
 	
 	run_b:										; main routin of process b
-		MOV ticks, #0
+		JB active, loopa						; jump directly to loopa if b is already active
+		
 		SETB TR1
 		SETB ET1
 		
+		MOV R0, #31								; R0  is check variable		
+		MOV ticks, #0							; Reset ticks at process start
+		
+		SETB active								; process b is active	
+		
 		MOV B, #'+'								; write 'b' to serial device 0
 		CALL write
-		
-		MOV R0, #31								; R0  is check variable
 		
 		loopa:
 			
 			MOV A, ticks
 			SUBB A, R0
 			CJNE A, #0, loopa					; compare, wether ticks is 31, if no, stay in loop
+			CLR active
 			JMP run_b							; jmp to run_b and start again
 		
 	write:	
