@@ -9,7 +9,7 @@ NAME process_a
 	_code SEGMENT CODE
 		RSEG _code
 	
-	run_a:
+	run_a:								; main routine of process a
 		MOV B, #'a'
 		CALL write
 		MOV B, #'b'
@@ -23,10 +23,10 @@ NAME process_a
 		RET
 		
 	write:	
-		CLR EAL						; deactivate global interrupts
-		MOV S0BUF, B
+		CLR EAL							; deactivate global interrupts
+		MOV S0BUF, B					; move B to serial device 0 output
 	loop:
-		SETB WDT
+		SETB WDT						; refresh watchdog
 		SETB SWDT
 		JNB TI0, loop
 		CLR TI0

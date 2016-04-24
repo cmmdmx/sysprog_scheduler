@@ -3,27 +3,26 @@ $NOMOD51
 
 NAME scheduler
 	
-	PUBLIC scheduler 
+	PUBLIC scheduler 								
 	PUBLIC process_start
 	PUBLIC process_stop
 		
-	EXTRN CODE(run_a)
-	EXTRN CODE(run_b)
-	EXTRN CODE(run_c)
-	EXTRN CODE(fkt_text)
+	EXTRN CODE(run_a)								; from process_a
+	EXTRN CODE(run_b)								; from process_b
+	EXTRN CODE(run_c)								; from process_c
+	EXTRN CODE(fkt_text)							; from fkt_text
 		
-	EXTRN DATA (next_process)
-	EXTRN DATA (next_process_priority)
-	EXTRN BIT (first_run)
-		
-	; data of scheduler
-	schedule_data SEGMENT DATA
+	EXTRN DATA (next_process)						; from main
+	EXTRN DATA (next_process_priority)				; from main
+	EXTRN BIT (first_run)							; from main
+	
+	schedule_data SEGMENT DATA						; scheduler data space
 		
 		RSEG schedule_data
 		
-		puffer_a: DS 1
-		puffer_b: DS 1
-		puffer_r0: DS 1
+		puffer_a: DS 1								; backup space for A
+		puffer_b: DS 1								; backup space for B
+		puffer_r0: DS 1								; backup space for register R0
 		
 		process_table: DS 4							; active processes are stored here
 		process_time: DS 4							; process times to affect priorities
@@ -40,23 +39,21 @@ NAME scheduler
 	
 	
 	
-	process_start:
+	process_start:									; "starts" a process. scheduler will handle this process now
 	
 		MOV A, next_process
 		
-		; Set process time
-		ADD A, #process_time
+		ADD A, #process_time						; set process running time (priority)
 		MOV R0, A
 		MOV @R0, next_process_priority
 				
-		; get Stack position
-		MOV A, next_process
+		MOV A, next_process							; get process stack adress
 		MOV B, #4
 		MUL AB
 		ADD A, #process_stack
-		MOV R1, A								; stack start adress of process in r1
+		MOV R1, A									; stack start adress of process in r1
 		
-		MOV A, next_process						; get process start adress
+		MOV A, next_process							; calculate process start adress
 		MOV B, #2
 		MUL AB
 		MOV R6, A
@@ -74,26 +71,16 @@ NAME scheduler
 		INC R1
 		MOV @R1, DPH
 		
-		MOV A, next_process
+		MOV A, next_process							; load A with next_process
 		
 		MOV B, #14
 		MUL AB
 		ADD A, #process_state
-		MOV R0, A								; R0 start adress for saving state
+		MOV R0, A									; R0 start adress for saving state
 		
 		MOV A, R1
-		MOV @R0, A								; set stack to beginning
+		MOV @R0, A									; set stack to beginning
 		
-		MOV A, R0
-		INC R0
-		MOV R1, #1								; R1 is Iteration variable
-		
-		process_reset:
-			
-			MOV @R0, #0
-			INC R0
-			INC R1
-			CJNE R1, #14, process_reset
 		
 		MOV A, next_process
 		ADD A, #process_table
@@ -101,14 +88,14 @@ NAME scheduler
 		MOV @R0, #0xFF
 		RET
 		
-	process_stop:
+	process_stop:									; stop a process from running
 		
 		MOV A, next_process
 		ADD A, #process_table
 		MOV R0, A
 		MOV @R0, #0
 		
-		SETB TF0
+		SETB TF0									; return to scheduler routine with timer 0 interrupt
 		RET
 		
 	scheduler:
@@ -116,23 +103,23 @@ NAME scheduler
 		CLR EAL
 		CLR TR0
 		
-		SETB WDT								; Watchdog reset
+		SETB WDT									; Watchdog reset
 		SETB SWDT
 		
-		MOV puffer_a, A							; temp save A
-		MOV puffer_b, B							; temp save B
-		MOV puffer_r0, R0						; temp save R0
+		MOV puffer_a, A								; temp save A
+		MOV puffer_b, B								; temp save B
+		MOV puffer_r0, R0							; temp save R0
 		
-		JBC first_run, find_process				; saving everything is not necessary on first run
+		JBC first_run, find_process					; saving everything is not necessary on first run
 		
 		MOV A, process_current
 		
-		MOV B, #14								; save state of current running process
+		MOV B, #14									; save state of current running process
 		MUL AB
 		ADD A, #process_state
 		MOV R0, A
 		
-		MOV @R0, SP
+		MOV @R0, SP									; save state data of current process
 		INC R0
 		MOV @R0, puffer_a
 		INC R0
@@ -170,7 +157,7 @@ NAME scheduler
 		MOV A, R7
 		MOV @R0, A
 		
-		find_process:
+		find_process:									; find next process (next active process of process table)
 			
 			INC process_current
 			MOV A, process_current
@@ -185,19 +172,19 @@ NAME scheduler
 			CJNE @R0, #0xff, find_process
 		
 		
-		MOV A, #process_time
+		MOV A, #process_time							; calculate priority (process running time)
 		ADD A, process_current
 		MOV R0, A
 		MOV A, @R0
 		MOV TH0, A
 		
-		MOV A, process_current
+		MOV A, process_current							; calculate adress of upcoming process
 		MOV B, #14
 		MUL AB
 		ADD A, #process_state
 		MOV R0, A
 		
-		MOV A, @R0
+		MOV A, @R0										; restore state of upcoming process
 		MOV SP, A
 		INC R0
 		MOV puffer_a, @R0
@@ -236,12 +223,12 @@ NAME scheduler
 		MOV A, @R0
 		MOV R7, A
 		
-		MOV A, puffer_a
-		MOV B, puffer_b
-		MOV R0, puffer_r0
+		MOV A, puffer_a									; restore A
+		MOV B, puffer_b									; restore B
+		MOV R0, puffer_r0								; restore R0
 			
-		SETB TR0
-		SETB EAL
-		RETI
+		SETB TR0										; re-activate timer 0
+		SETB EAL										; allow global interrupts
+		RETI											; return from interrupt
 
 END

@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     1
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
   00B8          +1    55     sfr   IEN1   = 0xB8;
   00B9          +1    56     sfr   IP1    = 0xB9;
   00BA          +1    57     sfr   S0RELH = 0xBA;
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     2
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     2
 
   00BB          +1    58     sfr   S1RELH = 0xBB;
                 +1    59     
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
   00EE          +1   121     sfr   MD5    = 0xEE;
   00EF          +1   122     sfr   ARCON  = 0xEF;
                 +1   123     
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     3
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     3
 
   00F0          +1   124     sfr   B      = 0xF0;
   00F2          +1   125     sfr   CML6   = 0xF2;
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
   009D          +1   187     sbit  SM20   = 0x9D;
   009C          +1   188     sbit  REN0   = 0x9C;
   009B          +1   189     sbit  TB80   = 0x9B;
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     4
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     4
 
   009A          +1   190     sbit  RB80   = 0x9A;
   0099          +1   191     sbit  TI0    = 0x99;
@@ -239,276 +239,287 @@ LOC  OBJ            LINE     SOURCE
                      223     
                      224     NAME scheduler
                      225             
-                     226             PUBLIC scheduler 
+                     226             PUBLIC scheduler                                                                
                      227             PUBLIC process_start
                      228             PUBLIC process_stop
                      229                     
-                     230             EXTRN CODE(run_a)
-                     231             EXTRN CODE(run_b)
-                     232             EXTRN CODE(run_c)
-                     233             EXTRN CODE(fkt_text)
+                     230             EXTRN CODE(run_a)                                                               ; f
+                             rom process_a
+                     231             EXTRN CODE(run_b)                                                               ; f
+                             rom process_b
+                     232             EXTRN CODE(run_c)                                                               ; f
+                             rom process_c
+                     233             EXTRN CODE(fkt_text)                                                    ; from fkt_
+                             text
                      234                     
-                     235             EXTRN DATA (next_process)
-                     236             EXTRN DATA (next_process_priority)
-                     237             EXTRN BIT (first_run)
-                     238                     
-                     239             ; data of scheduler
-                     240             schedule_data SEGMENT DATA
-                     241                     
-----                 242                     RSEG schedule_data
-                     243                     
-0000                 244                     puffer_a: DS 1
-0001                 245                     puffer_b: DS 1
-0002                 246                     puffer_r0: DS 1
-                     247                     
-0003                 248                     process_table: DS 4                                                     ; a
-                             ctive processes are stored here
-0007                 249                     process_time: DS 4                                                      ; p
-                             rocess times to affect priorities
-000B                 250                     process_current: DS 1                                           ; current p
-                             rocess
-000C                 251                     process_stack: DS 16                                            ; 4 byte as
-                              stack for 4 processes
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     5
+                     235             EXTRN DATA (next_process)                                               ; from main
+                     236             EXTRN DATA (next_process_priority)                              ; from main
+                     237             EXTRN BIT (first_run)                                                   ; from main
+                     238             
+                     239             schedule_data SEGMENT DATA                                              ; scheduler
+                              data space
+                     240                     
+----                 241                     RSEG schedule_data
+                     242                     
+0000                 243                     puffer_a: DS 1                                                          ; b
+                             ackup space for A
+0001                 244                     puffer_b: DS 1                                                          ; b
+                             ackup space for B
+0002                 245                     puffer_r0: DS 1                                                         ; b
+                             ackup space for register R0
+                     246                     
+0003                 247                     process_table: DS 4                                                     ; a
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     5
 
-001C                 252                     process_state: DS 56                                            ; 4 * 14 by
+                             ctive processes are stored here
+0007                 248                     process_time: DS 4                                                      ; p
+                             rocess times to affect priorities
+000B                 249                     process_current: DS 1                                           ; current p
+                             rocess
+000C                 250                     process_stack: DS 16                                            ; 4 byte as
+                              stack for 4 processes
+001C                 251                     process_state: DS 56                                            ; 4 * 14 by
                              te to save register etc. for the processes
-                     253                     
-                     254                             
-                     255             _code SEGMENT CODE
-----                 256                     RSEG _code
-                     257                     
-0000 0000     F      258             process_locations: DW run_c, run_a, run_b, fkt_text
+                     252                     
+                     253                             
+                     254             _code SEGMENT CODE
+----                 255                     RSEG _code
+                     256                     
+0000 0000     F      257             process_locations: DW run_c, run_a, run_b, fkt_text
 0002 0000     F              
 0004 0000     F              
 0006 0000     F              
+                     258             
                      259             
                      260             
                      261             
-                     262             
-0008                 263             process_start:
-                     264             
-0008 E500     F      265                     MOV A, next_process
-                     266                     
-                     267                     ; Set process time
-000A 2400     F      268                     ADD A, #process_time
-000C F8              269                     MOV R0, A
-000D A600     F      270                     MOV @R0, next_process_priority
-                     271                                     
-                     272                     ; get Stack position
-000F E500     F      273                     MOV A, next_process
-0011 75F004          274                     MOV B, #4
-0014 A4              275                     MUL AB
-0015 2400     F      276                     ADD A, #process_stack
-0017 F9              277                     MOV R1, A                                                               ; s
-                             tack start adress of process in r1
-                     278                     
-0018 E500     F      279                     MOV A, next_process                                             ; get proce
-                             ss start adress
-001A 75F002          280                     MOV B, #2
-001D A4              281                     MUL AB
-001E FE              282                     MOV R6, A
-001F 900000   F      283                     MOV DPTR, #process_locations
-0022 93              284                     MOVC A, @A+DPTR
-0023 FD              285                     MOV R5, A
-0024 EE              286                     MOV A, R6
-0025 04              287                     INC A
-0026 93              288                     MOVC A, @A+DPTR
+0008                 262             process_start:                                                                  ; "
+                             starts" a process. scheduler will handle this process now
+                     263             
+0008 E500     F      264                     MOV A, next_process
+                     265                     
+000A 2400     F      266                     ADD A, #process_time                                            ; set proce
+                             ss running time (priority)
+000C F8              267                     MOV R0, A
+000D A600     F      268                     MOV @R0, next_process_priority
+                     269                                     
+000F E500     F      270                     MOV A, next_process                                                     ; g
+                             et process stack adress
+0011 75F004          271                     MOV B, #4
+0014 A4              272                     MUL AB
+0015 2400     F      273                     ADD A, #process_stack
+0017 F9              274                     MOV R1, A                                                                  
+                                  ; stack start adress of process in r1
+                     275                     
+0018 E500     F      276                     MOV A, next_process                                                     ; c
+                             alculate process start adress
+001A 75F002          277                     MOV B, #2
+001D A4              278                     MUL AB
+001E FE              279                     MOV R6, A
+001F 900000   F      280                     MOV DPTR, #process_locations
+0022 93              281                     MOVC A, @A+DPTR
+0023 FD              282                     MOV R5, A
+0024 EE              283                     MOV A, R6
+0025 04              284                     INC A
+0026 93              285                     MOVC A, @A+DPTR
+                     286                     
+0027 F582            287                     MOV DPL, A
+0029 8D83            288                     MOV DPH, R5
                      289                     
-0027 F582            290                     MOV DPL, A
-0029 8D83            291                     MOV DPH, R5
-                     292                     
-002B A782            293                     MOV @R1, DPL
-002D 09              294                     INC R1
-002E A783            295                     MOV @R1, DPH
-                     296                     
-0030 E500     F      297                     MOV A, next_process
-                     298                     
-0032 75F00E          299                     MOV B, #14
-0035 A4              300                     MUL AB
-0036 2400     F      301                     ADD A, #process_state
-0038 F8              302                     MOV R0, A                                                               ; R
-                             0 start adress for saving state
+002B A782            290                     MOV @R1, DPL
+002D 09              291                     INC R1
+002E A783            292                     MOV @R1, DPH
+                     293                     
+0030 E500     F      294                     MOV A, next_process                                                     ; l
+                             oad A with next_process
+                     295                     
+0032 75F00E          296                     MOV B, #14
+0035 A4              297                     MUL AB
+0036 2400     F      298                     ADD A, #process_state
+0038 F8              299                     MOV R0, A                                                                  
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     6
+
+                                  ; R0 start adress for saving state
+                     300                     
+0039 E9              301                     MOV A, R1
+003A F6              302                     MOV @R0, A                                                                 
+                                  ; set stack to beginning
                      303                     
-0039 E9              304                     MOV A, R1
-003A F6              305                     MOV @R0, A                                                              ; s
-                             et stack to beginning
-                     306                     
-003B E8              307                     MOV A, R0
-003C 08              308                     INC R0
-003D 7901            309                     MOV R1, #1                                                              ; R
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     6
-
-                             1 is Iteration variable
+                     304                     
+003B E500     F      305                     MOV A, next_process
+003D 2400     F      306                     ADD A, #process_table
+003F F8              307                     MOV R0, A
+0040 76FF            308                     MOV @R0, #0xFF
+0042 22              309                     RET
                      310                     
-003F                 311                     process_reset:
-                     312                             
-003F 7600            313                             MOV @R0, #0
-0041 08              314                             INC R0
-0042 09              315                             INC R1
-0043 B90EF9          316                             CJNE R1, #14, process_reset
+0043                 311             process_stop:                                                                   ; s
+                             top a process from running
+                     312                     
+0043 E500     F      313                     MOV A, next_process
+0045 2400     F      314                     ADD A, #process_table
+0047 F8              315                     MOV R0, A
+0048 7600            316                     MOV @R0, #0
                      317                     
-0046 E500     F      318                     MOV A, next_process
-0048 2400     F      319                     ADD A, #process_table
-004A F8              320                     MOV R0, A
-004B 76FF            321                     MOV @R0, #0xFF
-004D 22              322                     RET
-                     323                     
-004E                 324             process_stop:
+004A D28D            318                     SETB TF0                                                                   
+                                  ; return to scheduler routine with timer 0 interrupt
+004C 22              319                     RET
+                     320                     
+004D                 321             scheduler:
+                     322                     
+004D C2AF            323                     CLR EAL
+004F C28C            324                     CLR TR0
                      325                     
-004E E500     F      326                     MOV A, next_process
-0050 2400     F      327                     ADD A, #process_table
-0052 F8              328                     MOV R0, A
-0053 7600            329                     MOV @R0, #0
-                     330                     
-0055 D28D            331                     SETB TF0
-0057 22              332                     RET
-                     333                     
-0058                 334             scheduler:
-                     335                     
-0058 C2AF            336                     CLR EAL
-005A C28C            337                     CLR TR0
-                     338                     
-005C D2AE            339                     SETB WDT                                                                ; W
-                             atchdog reset
-005E D2BE            340                     SETB SWDT
+0051 D2AE            326                     SETB WDT                                                                   
+                                  ; Watchdog reset
+0053 D2BE            327                     SETB SWDT
+                     328                     
+0055 F500     F      329                     MOV puffer_a, A                                                         ; t
+                             emp save A
+0057 85F000   F      330                     MOV puffer_b, B                                                         ; t
+                             emp save B
+005A 8800     F      331                     MOV puffer_r0, R0                                                       ; t
+                             emp save R0
+                     332                     
+005C 100035   F      333                     JBC first_run, find_process                                     ; saving ev
+                             erything is not necessary on first run
+                     334                     
+005F E500     F      335                     MOV A, process_current
+                     336                     
+0061 75F00E          337                     MOV B, #14                                                                 
+                                  ; save state of current running process
+0064 A4              338                     MUL AB
+0065 2400     F      339                     ADD A, #process_state
+0067 F8              340                     MOV R0, A
                      341                     
-0060 F500     F      342                     MOV puffer_a, A                                                 ; temp save
-                              A
-0062 85F000   F      343                     MOV puffer_b, B                                                 ; temp save
-                              B
-0065 8800     F      344                     MOV puffer_r0, R0                                               ; temp save
-                              R0
-                     345                     
-0067 100035   F      346                     JBC first_run, find_process                             ; saving everything
-                              is not necessary on first run
-                     347                     
-006A E500     F      348                     MOV A, process_current
-                     349                     
-006C 75F00E          350                     MOV B, #14                                                              ; s
-                             ave state of current running process
-006F A4              351                     MUL AB
-0070 2400     F      352                     ADD A, #process_state
-0072 F8              353                     MOV R0, A
-                     354                     
-0073 A681            355                     MOV @R0, SP
-0075 08              356                     INC R0
-0076 A600     F      357                     MOV @R0, puffer_a
-0078 08              358                     INC R0
-0079 A600     F      359                     MOV @R0, puffer_b
-007B 08              360                     INC R0
-007C E5D0            361                     MOV A, PSW
-007E F6              362                     MOV @R0, A
-007F 08              363                     INC R0
-0080 E583            364                     MOV A, DPH
-0082 F6              365                     MOV @R0, A
-0083 08              366                     INC R0
-0084 E582            367                     MOV A, DPL
-0086 F6              368                     MOV @R0, A
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     7
+0068 A681            342                     MOV @R0, SP                                                                
+                                  ; save state data of current process
+006A 08              343                     INC R0
+006B A600     F      344                     MOV @R0, puffer_a
+006D 08              345                     INC R0
+006E A600     F      346                     MOV @R0, puffer_b
+0070 08              347                     INC R0
+0071 E5D0            348                     MOV A, PSW
+0073 F6              349                     MOV @R0, A
+0074 08              350                     INC R0
+0075 E583            351                     MOV A, DPH
+0077 F6              352                     MOV @R0, A
+0078 08              353                     INC R0
+0079 E582            354                     MOV A, DPL
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     7
 
-0087 08              369                     INC R0
-0088 A600     F      370                     MOV @R0, puffer_r0
-008A 08              371                     INC R0
-008B E9              372                     MOV A, R1
-008C F6              373                     MOV @R0, A
-008D 08              374                     INC R0
-008E EA              375                     MOV A, R2
-008F F6              376                     MOV @R0, A
-0090 08              377                     INC R0
-0091 EB              378                     MOV A, R3
-0092 F6              379                     MOV @R0, A
-0093 08              380                     INC R0
-0094 EC              381                     MOV A, R4
-0095 F6              382                     MOV @R0, A
-0096 08              383                     INC R0
-0097 ED              384                     MOV A, R5
-0098 F6              385                     MOV @R0, A
-0099 08              386                     INC R0
-009A EE              387                     MOV A, R6
-009B F6              388                     MOV @R0, A
-009C 08              389                     INC R0
-009D EF              390                     MOV A, R7
-009E F6              391                     MOV @R0, A
-                     392                     
-009F                 393                     find_process:
-                     394                             
-009F 0500     F      395                             INC process_current
-00A1 E500     F      396                             MOV A, process_current
-00A3 B40403          397                             CJNE A, #4, check_process
-00A6 750000   F      398                             MOV process_current, #0
-                     399                             
-00A9                 400                     check_process:
-                     401                     
-00A9 7400     F      402                             MOV A, #process_table
-00AB 2500     F      403                             ADD A, process_current
-00AD F8              404                             MOV R0, A
-00AE B6FFEE          405                             CJNE @R0, #0xff, find_process
+007B F6              355                     MOV @R0, A
+007C 08              356                     INC R0
+007D A600     F      357                     MOV @R0, puffer_r0
+007F 08              358                     INC R0
+0080 E9              359                     MOV A, R1
+0081 F6              360                     MOV @R0, A
+0082 08              361                     INC R0
+0083 EA              362                     MOV A, R2
+0084 F6              363                     MOV @R0, A
+0085 08              364                     INC R0
+0086 EB              365                     MOV A, R3
+0087 F6              366                     MOV @R0, A
+0088 08              367                     INC R0
+0089 EC              368                     MOV A, R4
+008A F6              369                     MOV @R0, A
+008B 08              370                     INC R0
+008C ED              371                     MOV A, R5
+008D F6              372                     MOV @R0, A
+008E 08              373                     INC R0
+008F EE              374                     MOV A, R6
+0090 F6              375                     MOV @R0, A
+0091 08              376                     INC R0
+0092 EF              377                     MOV A, R7
+0093 F6              378                     MOV @R0, A
+                     379                     
+0094                 380                     find_process:                                                              
+                                  ; find next process (next active process of process table)
+                     381                             
+0094 0500     F      382                             INC process_current
+0096 E500     F      383                             MOV A, process_current
+0098 B40403          384                             CJNE A, #4, check_process
+009B 750000   F      385                             MOV process_current, #0
+                     386                             
+009E                 387                     check_process:
+                     388                     
+009E 7400     F      389                             MOV A, #process_table
+00A0 2500     F      390                             ADD A, process_current
+00A2 F8              391                             MOV R0, A
+00A3 B6FFEE          392                             CJNE @R0, #0xff, find_process
+                     393                     
+                     394                     
+00A6 7400     F      395                     MOV A, #process_time                                                    ; c
+                             alculate priority (process running time)
+00A8 2500     F      396                     ADD A, process_current
+00AA F8              397                     MOV R0, A
+00AB E6              398                     MOV A, @R0
+00AC F58C            399                     MOV TH0, A
+                     400                     
+00AE E500     F      401                     MOV A, process_current                                                  ; c
+                             alculate adress of upcoming process
+00B0 75F00E          402                     MOV B, #14
+00B3 A4              403                     MUL AB
+00B4 2400     F      404                     ADD A, #process_state
+00B6 F8              405                     MOV R0, A
                      406                     
-                     407                     
-00B1 7400     F      408                     MOV A, #process_time
-00B3 2500     F      409                     ADD A, process_current
-00B5 F8              410                     MOV R0, A
-00B6 E6              411                     MOV A, @R0
-00B7 F58C            412                     MOV TH0, A
-                     413                     
-00B9 E500     F      414                     MOV A, process_current
-00BB 75F00E          415                     MOV B, #14
-00BE A4              416                     MUL AB
-00BF 2400     F      417                     ADD A, #process_state
-00C1 F8              418                     MOV R0, A
-                     419                     
-00C2 E6              420                     MOV A, @R0
-00C3 F581            421                     MOV SP, A
-00C5 08              422                     INC R0
-00C6 8600     F      423                     MOV puffer_a, @R0
-00C8 08              424                     INC R0
-00C9 8600     F      425                     MOV puffer_b, @R0
-00CB 08              426                     INC R0
-00CC E6              427                     MOV A, @R0
-00CD F5D0            428                     MOV PSW, A
-00CF 08              429                     INC R0
-00D0 E6              430                     MOV A, @R0
-00D1 F583            431                     MOV DPH, A
-00D3 08              432                     INC R0
-00D4 E6              433                     MOV A, @R0
-00D5 F582            434                     MOV DPL, A
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     8
+00B7 E6              407                     MOV A, @R0                                                                 
+                                          ; restore state of upcoming process
+00B8 F581            408                     MOV SP, A
+00BA 08              409                     INC R0
+00BB 8600     F      410                     MOV puffer_a, @R0
+00BD 08              411                     INC R0
+00BE 8600     F      412                     MOV puffer_b, @R0
+00C0 08              413                     INC R0
+00C1 E6              414                     MOV A, @R0
+00C2 F5D0            415                     MOV PSW, A
+00C4 08              416                     INC R0
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     8
 
-00D7 08              435                     INC R0
-00D8 8600     F      436                     MOV puffer_r0, @R0
-00DA 08              437                     INC R0
-00DB E6              438                     MOV A, @R0
-00DC F9              439                     MOV R1, A
-00DD 08              440                     INC R0
-00DE E6              441                     MOV A, @R0
-00DF FA              442                     MOV R2, A
-00E0 08              443                     INC R0
-00E1 E6              444                     MOV A, @R0
-00E2 FB              445                     MOV R3, A
-00E3 08              446                     INC R0
-00E4 E6              447                     MOV A, @R0
-00E5 FC              448                     MOV R4, A
-00E6 08              449                     INC R0
-00E7 E6              450                     MOV A, @R0
-00E8 FD              451                     MOV R5, A
-00E9 08              452                     INC R0
-00EA E6              453                     MOV A, @R0
-00EB FE              454                     MOV R6, A
-00EC 08              455                     INC R0
-00ED E6              456                     MOV A, @R0
-00EE FF              457                     MOV R7, A
-                     458                     
-00EF E500     F      459                     MOV A, puffer_a
-00F1 8500F0   F      460                     MOV B, puffer_b
-00F4 A800     F      461                     MOV R0, puffer_r0
-                     462                             
-00F6 D28C            463                     SETB TR0
-00F8 D2AF            464                     SETB EAL
-00FA 32              465                     RETI
-                     466     
-                     467     END
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE     9
+00C5 E6              417                     MOV A, @R0
+00C6 F583            418                     MOV DPH, A
+00C8 08              419                     INC R0
+00C9 E6              420                     MOV A, @R0
+00CA F582            421                     MOV DPL, A
+00CC 08              422                     INC R0
+00CD 8600     F      423                     MOV puffer_r0, @R0
+00CF 08              424                     INC R0
+00D0 E6              425                     MOV A, @R0
+00D1 F9              426                     MOV R1, A
+00D2 08              427                     INC R0
+00D3 E6              428                     MOV A, @R0
+00D4 FA              429                     MOV R2, A
+00D5 08              430                     INC R0
+00D6 E6              431                     MOV A, @R0
+00D7 FB              432                     MOV R3, A
+00D8 08              433                     INC R0
+00D9 E6              434                     MOV A, @R0
+00DA FC              435                     MOV R4, A
+00DB 08              436                     INC R0
+00DC E6              437                     MOV A, @R0
+00DD FD              438                     MOV R5, A
+00DE 08              439                     INC R0
+00DF E6              440                     MOV A, @R0
+00E0 FE              441                     MOV R6, A
+00E1 08              442                     INC R0
+00E2 E6              443                     MOV A, @R0
+00E3 FF              444                     MOV R7, A
+                     445                     
+00E4 E500     F      446                     MOV A, puffer_a                                                            
+                                  ; restore A
+00E6 8500F0   F      447                     MOV B, puffer_b                                                            
+                                  ; restore B
+00E9 A800     F      448                     MOV R0, puffer_r0                                                          
+                                  ; restore R0
+                     449                             
+00EB D28C            450                     SETB TR0                                                                   
+                                          ; re-activate timer 0
+00ED D2AF            451                     SETB EAL                                                                   
+                                          ; allow global interrupts
+00EF 32              452                     RETI                                                                       
+                                          ; return from interrupt
+                     453     
+                     454     END
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE     9
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -542,7 +553,7 @@ CCL1. . . . . . . . .  D ADDR   00C2H   A
 CCL2. . . . . . . . .  D ADDR   00C4H   A   
 CCL3. . . . . . . . .  D ADDR   00C6H   A   
 CCL4. . . . . . . . .  D ADDR   00CEH   A   
-CHECK_PROCESS . . . .  C ADDR   00A9H   R   SEG=_CODE
+CHECK_PROCESS . . . .  C ADDR   009EH   R   SEG=_CODE
 CLK . . . . . . . . .  B ADDR   00D8H.6 A   
 CLRMSK. . . . . . . .  D ADDR   00A6H   A   
 CM0 . . . . . . . . .    ----   -----       
@@ -576,7 +587,7 @@ COMCLRH . . . . . . .  D ADDR   00A4H   A
 COMCLRL . . . . . . .  D ADDR   00A3H   A   
 COMSET. . . . . . . .    ----   -----       
 COMSETH . . . . . . .  D ADDR   00A2H   A   
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE    10
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE    10
 
 COMSETL . . . . . . .  D ADDR   00A1H   A   
 CRC . . . . . . . . .    ----   -----       
@@ -607,7 +618,7 @@ EXEN2 . . . . . . . .  B ADDR   00B8H.7 A
 EXF2. . . . . . . . .  B ADDR   00C0H.7 A   
 F0. . . . . . . . . .  B ADDR   00D0H.5 A   
 F1. . . . . . . . . .  B ADDR   00D0H.1 A   
-FIND_PROCESS. . . . .  C ADDR   009FH   R   SEG=_CODE
+FIND_PROCESS. . . . .  C ADDR   0094H   R   SEG=_CODE
 FIRST_RUN . . . . . .  B ADDR   -----       EXT
 FKT_TEXT. . . . . . .  C ADDR   -----       EXT
 I2FR. . . . . . . . .  B ADDR   00C8H.5 A   
@@ -644,7 +655,7 @@ NEXT_PROCESS. . . . .  D ADDR   -----       EXT
 NEXT_PROCESS_PRIORITY  D ADDR   -----       EXT
 OV. . . . . . . . . .  B ADDR   00D0H.2 A   
 P . . . . . . . . . .  B ADDR   00D0H.0 A   
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE    11
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE    11
 
 P0. . . . . . . . . .  D ADDR   0080H   A   
 P1. . . . . . . . . .  D ADDR   0090H   A   
@@ -658,11 +669,10 @@ P8. . . . . . . . . .  D ADDR   00DDH   A
 PCON. . . . . . . . .  D ADDR   0087H   A   
 PROCESS_CURRENT . . .  D ADDR   000BH   R   SEG=SCHEDULE_DATA
 PROCESS_LOCATIONS . .  C ADDR   0000H   R   SEG=_CODE
-PROCESS_RESET . . . .  C ADDR   003FH   R   SEG=_CODE
 PROCESS_STACK . . . .  D ADDR   000CH   R   SEG=SCHEDULE_DATA
 PROCESS_START . . . .  C ADDR   0008H   R   SEG=_CODE
 PROCESS_STATE . . . .  D ADDR   001CH   R   SEG=SCHEDULE_DATA
-PROCESS_STOP. . . . .  C ADDR   004EH   R   SEG=_CODE
+PROCESS_STOP. . . . .  C ADDR   0043H   R   SEG=_CODE
 PROCESS_TABLE . . . .  D ADDR   0003H   R   SEG=SCHEDULE_DATA
 PROCESS_TIME. . . . .  D ADDR   0007H   R   SEG=SCHEDULE_DATA
 PSW . . . . . . . . .  D ADDR   00D0H   A   
@@ -687,7 +697,7 @@ S1BUF . . . . . . . .  D ADDR   009CH   A
 S1CON . . . . . . . .  D ADDR   009BH   A   
 S1RELH. . . . . . . .  D ADDR   00BBH   A   
 S1RELL. . . . . . . .  D ADDR   009DH   A   
-SCHEDULER . . . . . .  C ADDR   0058H   R   SEG=_CODE
+SCHEDULER . . . . . .  C ADDR   004DH   R   SEG=_CODE
 SCHEDULE_DATA . . . .  D SEG    0054H       REL=UNIT
 SETMSK. . . . . . . .  D ADDR   00A5H   A   
 SM0 . . . . . . . . .  B ADDR   0098H.7 A   
@@ -712,9 +722,9 @@ TF0 . . . . . . . . .  B ADDR   0088H.5 A
 TF1 . . . . . . . . .  B ADDR   0088H.7 A   
 TF2 . . . . . . . . .  B ADDR   00C0H.6 A   
 TH0 . . . . . . . . .  D ADDR   008CH   A   
-A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 13:52:29 PAGE    12
-
 TH1 . . . . . . . . .  D ADDR   008DH   A   
+A51 MACRO ASSEMBLER  SCHEDULER                                                            04/24/2016 15:11:07 PAGE    12
+
 TH2 . . . . . . . . .  D ADDR   00CDH   A   
 TI0 . . . . . . . . .  B ADDR   0098H.1 A   
 TL0 . . . . . . . . .  D ADDR   008AH   A   
@@ -730,7 +740,7 @@ WDTL. . . . . . . . .  D ADDR   0084H   A
 WDTREL. . . . . . . .  D ADDR   0086H   A   
 WR. . . . . . . . . .  B ADDR   00B0H.6 A   
 XPAGE . . . . . . . .  D ADDR   0091H   A   
-_CODE . . . . . . . .  C SEG    00FBH       REL=UNIT
+_CODE . . . . . . . .  C SEG    00F0H       REL=UNIT
 
 
 REGISTER BANK(S) USED: 0 

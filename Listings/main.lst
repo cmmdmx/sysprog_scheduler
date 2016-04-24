@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     1
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
   00B8          +1    55     sfr   IEN1   = 0xB8;
   00B9          +1    56     sfr   IP1    = 0xB9;
   00BA          +1    57     sfr   S0RELH = 0xBA;
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     2
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     2
 
   00BB          +1    58     sfr   S1RELH = 0xBB;
                 +1    59     
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
   00EE          +1   121     sfr   MD5    = 0xEE;
   00EF          +1   122     sfr   ARCON  = 0xEF;
                 +1   123     
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     3
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     3
 
   00F0          +1   124     sfr   B      = 0xF0;
   00F2          +1   125     sfr   CML6   = 0xF2;
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
   009D          +1   187     sbit  SM20   = 0x9D;
   009C          +1   188     sbit  REN0   = 0x9C;
   009B          +1   189     sbit  TB80   = 0x9B;
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     4
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     4
 
   009A          +1   190     sbit  RB80   = 0x9A;
   0099          +1   191     sbit  TI0    = 0x99;
@@ -239,84 +239,94 @@ LOC  OBJ            LINE     SOURCE
                      223     
                      224     NAME main
                      225                     
-                     226             EXTRN CODE(serial_init)
-                     227             EXTRN CODE(timer_init)
-                     228             EXTRN CODE (scheduler, process_start, process_stop)
-                     229             EXTRN CODE (b_interrupt)
+                     226             EXTRN CODE(serial_init)                                                            
+                                                          ; from init.a51
+                     227             EXTRN CODE(timer_init)                                                             
+                                                          ; from init.a51
+                     228             EXTRN CODE (scheduler, process_start, process_stop)                                
+                                  ; from scheduler.a51
+                     229             EXTRN CODE (b_interrupt)                                                           
+                                                          ; from process_b.a51
                      230             
-                     231             ; main data of scheduler
-                     232             main_data SEGMENT DATA
-                     233                     
-                     234                     PUBLIC next_process
-                     235                     PUBLIC next_process_priority
-----                 236                     RSEG main_data
-                     237                     
-0000                 238                     next_process: DS 1                                              ; current p
+                     231             main_data SEGMENT DATA
+                     232                     
+                     233                     PUBLIC next_process
+                     234                     PUBLIC next_process_priority
+----                 235                     RSEG main_data
+                     236                     
+0000                 237                     next_process: DS 1                                              ; current p
                              rocess: 0:console, 1:prozessA, 2:processB, 3:processZ
-0001                 239                     next_process_priority: DS 1
-                     240                             
-0002                 241                     stack: DS 4
-                     242             
-                     243             main_data_bit SEGMENT BIT
-                     244                     PUBLIC first_run
-----                 245                     RSEG main_data_bit
-0000                 246                     first_run: DBIT 1
-                     247                     
-                     248             _code SEGMENT CODE
-----                 249                     RSEG _code
-                     250                     
-                     251             
-----                 252             CSEG                                                                               
-                                  ; Festes Segment 
-0000                 253             ORG 0                                                                              
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     5
+0001                 238                     next_process_priority: DS 1                             ; priority of next 
+                             process: high value = low priority (low runtime)
+                     239                             
+0002                 240                     stack: DS 4                                                             ; d
+                             efault space for stack
+                     241             
+                     242             main_data_bit SEGMENT BIT
+                     243                     PUBLIC first_run
+----                 244                     RSEG main_data_bit
+0000                 245                     first_run: DBIT 1                                               ; flag, use
+                             d in scheduler to check first run
+                     246                     
+                     247             _code SEGMENT CODE
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     5
 
-                                  ; Bei Adresse 0
-0000 801C            254             JMP start
-                     255             
-0004                 256             ORG 4
-0004 020000   F      257             JMP process_stop
-                     258             
-                     259             ; Interrupt Routinen
-                     260             ; Timer 0 (Scheduler)
-000B                 261             ORG 000Bh
-000B 020000   F      262             JMP scheduler
-                     263             
-                     264             ; Timer 1
-001B                 265             ORG 001Bh
-001B 020000   F      266             JMP b_interrupt
-                     267             
-001E                 268             start:
-                     269             
-001E D2AF            270                     SETB EAL                                                                ; A
-                             llow interrupts
-0020 D2A9            271                     SETB ET0                                                                ; T
-                             imer 0 interrupt erlauben
+----                 248                     RSEG _code
+                     249                     
+                     250             
+----                 251             CSEG                                                                            ; s
+                             tart
+0000                 252             ORG 0                                                                           ; a
+                             t adress 0
+0000 801C            253             JMP start                                                                       ; j
+                             ump to program start 
+                     254     
+000B                 255             ORG 000Bh                                                                       ; t
+                             imer 0 interrupt (timer 0 = scheduler)
+000B 020000   F      256             JMP scheduler
+                     257             
+001B                 258             ORG 001Bh                                                                       ; t
+                             imer 1 interrupt (timer 1 = counter)
+001B 020000   F      259             JMP b_interrupt
+                     260             
+001E                 261             start:                                                                          ; s
+                             tart routine
+                     262             
+001E D2AF            263                     SETB EAL                                                                ; a
+                             llow global interrupts
+0020 D2A9            264                     SETB ET0                                                                ; a
+                             llow timer 0 interrupt
+                     265                     
+0022 120000   F      266                     CALL serial_init                                                ; initializ
+                             e serial interface 0
+0025 120000   F      267                     CALL timer_init                                                 ; initializ
+                             e timers
+                     268                     
+0028 758100   F      269                     MOV SP, #stack                                                  ; set stack
+                              pointer to reserved space
+                     270                     
+002B D200     F      271                     SETB first_run                                                  ; set bit "
+                             first_run" active (1)
                      272                     
-0022 120000   F      273                     CALL serial_init
-0025 120000   F      274                     CALL timer_init
+002D 750000   F      273                     MOV next_process, #0                                    ; set next_process 
+                             to 0 (console)
+0030 750000   F      274                     MOV next_process_priority, #0x00                ; set next_process priority
+                              to 0 (highest)
                      275                     
-0028 758100   F      276                     MOV SP, #stack                                                  ; Stack Poi
-                             nter auf reservierten Bereich setzen
+0033 120000   F      276                     CALL process_start                                              ; call proc
+                             ess_start (to start process from next_process)
                      277                     
-002B D200     F      278                     SETB first_run
-                     279                     
-002D 750000   F      280                     MOV next_process_priority, #0x00                        ; Priorität 2 für a
-                             ktuellen Prozess
-0030 750000   F      281                     MOV next_process, #0                                    ; process_current a
-                             uf Konsole setzen
-                     282                     
-0033 120000   F      283                     CALL process_start
-                     284                     
-0036 D28C            285                     SETB TR0                                                                ; T
-                             imer 0 starten
-0038 D28D            286                     SETB TF0
-                     287                     
-003A                 288             loop:
-003A 00              289                     NOP
-003B 80FD            290                     JMP loop
-                     291     END
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     6
+0036 D28C            278                     SETB TR0                                                                ; s
+                             tart timer 0
+0038 D28D            279                     SETB TF0                                                                ; j
+                             ump to timer 0 interrupt routine
+                     280                     
+003A                 281             loop:                                                                           ; n
+                             op loop as default behavior if some program parts crash
+003A 00              282                     NOP
+003B 80FD            283                     JMP loop
+                     284     END
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     6
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -384,7 +394,7 @@ COMCLRH . . . . . . .  D ADDR   00A4H   A
 COMCLRL . . . . . . .  D ADDR   00A3H   A   
 COMSET. . . . . . . .    ----   -----       
 COMSETH . . . . . . .  D ADDR   00A2H   A   
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     7
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     7
 
 COMSETL . . . . . . .  D ADDR   00A1H   A   
 CRC . . . . . . . . .    ----   -----       
@@ -452,7 +462,7 @@ MX1 . . . . . . . . .  B ADDR   00D8H.1 A
 MX2 . . . . . . . . .  B ADDR   00D8H.2 A   
 NEXT_PROCESS. . . . .  D ADDR   0000H   R   SEG=MAIN_DATA
 NEXT_PROCESS_PRIORITY  D ADDR   0001H   R   SEG=MAIN_DATA
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     8
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     8
 
 OV. . . . . . . . . .  B ADDR   00D0H.2 A   
 P . . . . . . . . . .  B ADDR   00D0H.0 A   
@@ -520,7 +530,7 @@ TL1 . . . . . . . . .  D ADDR   008BH   A
 TL2 . . . . . . . . .  D ADDR   00CCH   A   
 TMOD. . . . . . . . .  D ADDR   0089H   A   
 TR0 . . . . . . . . .  B ADDR   0088H.4 A   
-A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 13:52:29 PAGE     9
+A51 MACRO ASSEMBLER  MAIN                                                                 04/24/2016 15:11:07 PAGE     9
 
 TR1 . . . . . . . . .  B ADDR   0088H.6 A   
 TXD . . . . . . . . .  B ADDR   00B0H.1 A   

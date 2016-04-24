@@ -22,12 +22,12 @@ NAME init
 	CLR 	SM0		;Mode 1
 	SETB 	SM1		; 
 	
-	SETB BD				; Interner Baudgenerator enable´
+	SETB BD				; intern baud generator enabled
 	MOV PCON, #0x00		; SMOD = 0
-	MOV S0RELH, #0x03 	; Baudrate = 14423
+	MOV S0RELH, #0x03 	; baudrate = 14423
 	MOV S0RELL,	#0xE6 	; 
 	
-	SETB REN0			; Empfangen freigeben
+	SETB REN0			; activate recieve
 	MOV S1CON, 0x20
 	RET
 END

@@ -9,48 +9,53 @@ NAME process_b
 		
 	_data SEGMENT DATA
 		RSEG _data
-		ticks: DS 1
+		ticks: DS 1								; ticks : 31 ticks are ~ one second in 8051, 1 tick is 1 overflow of timer 1
 	
 	_code SEGMENT CODE
 		RSEG _code
 	
-	run_b:
+	run_b:										; main routin of process b
 		MOV ticks, #0
 		SETB TR1
 		SETB ET1
 		
-		MOV B, #'+'
+		MOV B, #'+'								; write 'b' to serial device 0
 		CALL write
 		
-		MOV R0, #31
+		MOV R0, #31								; R0  is check variable
 		
 		loopa:
 			
 			MOV A, ticks
 			SUBB A, R0
-			CJNE A, #0, loopa
-			JMP run_b
+			CJNE A, #0, loopa					; compare, wether ticks is 31, if no, stay in loop
+			JMP run_b							; jmp to run_b and start again
 		
 	write:	
-		CLR EAL							; deactivate global interrupts
-		MOV S0BUF, B
+		CLR EAL									; deactivate global interrupts
+		MOV S0BUF, B							; move content from B into S0BUF (write to serial device 0)
 	loop:
-		SETB WDT
+		SETB WDT								; refresh watchdog
 		SETB SWDT
-		JNB TI0, loop
+		JNB TI0, loop							; loop as long serial device 0 is sending
 		CLR TI0
-		SETB EAL						; activate interrupts after sending to serial
+		SETB EAL								; activate interrupts after sending to serial
 		RET
 		
-	b_interrupt:
+	b_interrupt:								; interrupt routine of timer 1
 		
-		CLR EAL
+		CLR EAL									; deactivate interrupts
 		CLR TR1
 		
-		INC ticks
+		MOV A, #32								
+		INC ticks								; increment 'ticks'
+		CJNE A, ticks, end_interrupt			; if 'ticks' is greater than 31, it should have 31
+		MOV ticks, #31
 		
-		SETB TR1
-		SETB EAL
-		RETI
+		end_interrupt:							; end interrupt
+				
+			SETB TR1
+			SETB EAL
+			RETI
 	
 END

@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     1
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
   00B1          +1    55     sfr   SYSCON = 0xB1;
   00B8          +1    56     sfr   IEN1   = 0xB8;
   00B9          +1    57     sfr   IP1    = 0xB9;
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     2
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     2
 
   00BA          +1    58     sfr   S0RELH = 0xBA;
   00BB          +1    59     sfr   S1RELH = 0xBB;
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
   00ED          +1   121     sfr   MD4    = 0xED;
   00EE          +1   122     sfr   MD5    = 0xEE;
   00EF          +1   123     sfr   ARCON  = 0xEF;
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     3
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     3
 
                 +1   124     
   00F0          +1   125     sfr   B      = 0xF0;
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
   009E          +1   187     sbit  SM1    = 0x9E;
   009D          +1   188     sbit  SM20   = 0x9D;
   009C          +1   189     sbit  REN0   = 0x9C;
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     4
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     4
 
   009B          +1   190     sbit  TB80   = 0x9B;
   009A          +1   191     sbit  RB80   = 0x9A;
@@ -245,56 +245,75 @@ LOC  OBJ            LINE     SOURCE
                      229                     
                      230             _data SEGMENT DATA
 ----                 231                     RSEG _data
-0000                 232                     ticks: DS 1
+0000                 232                     ticks: DS 1                                                             ; t
+                             icks : 31 ticks are ~ one second in 8051, 1 tick is 1 overflow of timer 1
                      233             
                      234             _code SEGMENT CODE
 ----                 235                     RSEG _code
                      236             
-0000                 237             run_b:
+0000                 237             run_b:                                                                          ; m
+                             ain routin of process b
 0000 750000   F      238                     MOV ticks, #0
 0003 D28E            239                     SETB TR1
 0005 D2AB            240                     SETB ET1
                      241                     
-0007 75F02B          242                     MOV B, #'+'
+0007 75F02B          242                     MOV B, #'+'                                                             ; w
+                             rite 'b' to serial device 0
 000A 120000   F      243                     CALL write
                      244                     
-000D 781F            245                     MOV R0, #31
+000D 781F            245                     MOV R0, #31                                                             ; R
+                             0  is check variable
                      246                     
 000F                 247                     loopa:
                      248                             
 000F E500     F      249                             MOV A, ticks
 0011 98              250                             SUBB A, R0
-0012 B400FA          251                             CJNE A, #0, loopa
-0015 80E9            252                             JMP run_b
+0012 B400FA          251                             CJNE A, #0, loopa                                       ; compare, 
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     5
+
+                             wether ticks is 31, if no, stay in loop
+0015 80E9            252                             JMP run_b                                                       ; j
+                             mp to run_b and start again
                      253                     
 0017                 254             write:  
-0017 C2AF            255                     CLR EAL                                                 ; deactivate global
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     5
-
-                              interrupts
-0019 85F099          256                     MOV S0BUF, B
+0017 C2AF            255                     CLR EAL                                                                 ; d
+                             eactivate global interrupts
+0019 85F099          256                     MOV S0BUF, B                                                    ; move cont
+                             ent from B into S0BUF (write to serial device 0)
 001C                 257             loop:
-001C D2AE            258                     SETB WDT
+001C D2AE            258                     SETB WDT                                                                ; r
+                             efresh watchdog
 001E D2BE            259                     SETB SWDT
-0020 3099F9          260                     JNB TI0, loop
+0020 3099F9          260                     JNB TI0, loop                                                   ; loop as l
+                             ong serial device 0 is sending
 0023 C299            261                     CLR TI0
-0025 D2AF            262                     SETB EAL                                                ; activate interrup
-                             ts after sending to serial
+0025 D2AF            262                     SETB EAL                                                                ; a
+                             ctivate interrupts after sending to serial
 0027 22              263                     RET
                      264                     
-0028                 265             b_interrupt:
+0028                 265             b_interrupt:                                                            ; interrupt
+                              routine of timer 1
                      266                     
-0028 C2AF            267                     CLR EAL
+0028 C2AF            267                     CLR EAL                                                                 ; d
+                             eactivate interrupts
 002A C28E            268                     CLR TR1
                      269                     
-002C 0500     F      270                     INC ticks
-                     271                     
-002E D28E            272                     SETB TR1
-0030 D2AF            273                     SETB EAL
-0032 32              274                     RETI
-                     275             
-                     276     END
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     6
+002C 7420            270                     MOV A, #32                                                              
+002E 0500     F      271                     INC ticks                                                               ; i
+                             ncrement 'ticks'
+0030 B50003   F      272                     CJNE A, ticks, end_interrupt                    ; if 'ticks' is greater tha
+                             n 31, it should have 31
+0033 75001F   F      273                     MOV ticks, #31
+                     274                     
+0036                 275                     end_interrupt:                                                  ; end inter
+                             rupt
+                     276                                     
+0036 D28E            277                             SETB TR1
+0038 D2AF            278                             SETB EAL
+003A 32              279                             RETI
+                     280             
+                     281     END
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     6
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -362,7 +381,7 @@ COMCLRH. . . . . .  D ADDR   00A4H   A
 COMCLRL. . . . . .  D ADDR   00A3H   A   
 COMSET . . . . . .    ----   -----       
 COMSETH. . . . . .  D ADDR   00A2H   A   
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     7
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     7
 
 COMSETL. . . . . .  D ADDR   00A1H   A   
 CRC. . . . . . . .    ----   -----       
@@ -378,6 +397,7 @@ DPL. . . . . . . .  D ADDR   0082H   A
 DPSEL. . . . . . .  D ADDR   0092H   A   
 EADC . . . . . . .  B ADDR   00B8H.0 A   
 EAL. . . . . . . .  B ADDR   00A8H.7 A   
+END_INTERRUPT. . .  C ADDR   0036H   R   SEG=_CODE
 ES0. . . . . . . .  B ADDR   00A8H.4 A   
 ET0. . . . . . . .  B ADDR   00A8H.1 A   
 ET1. . . . . . . .  B ADDR   00A8H.3 A   
@@ -429,9 +449,9 @@ OV . . . . . . . .  B ADDR   00D0H.2 A
 P. . . . . . . . .  B ADDR   00D0H.0 A   
 P0 . . . . . . . .  D ADDR   0080H   A   
 P1 . . . . . . . .  D ADDR   0090H   A   
-P2 . . . . . . . .  D ADDR   00A0H   A   
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     8
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     8
 
+P2 . . . . . . . .  D ADDR   00A0H   A   
 P3 . . . . . . . .  D ADDR   00B0H   A   
 P4 . . . . . . . .  D ADDR   00E8H   A   
 P5 . . . . . . . .  D ADDR   00F8H   A   
@@ -497,10 +517,10 @@ WDTL . . . . . . .  D ADDR   0084H   A
 WDTREL . . . . . .  D ADDR   0086H   A   
 WR . . . . . . . .  B ADDR   00B0H.6 A   
 WRITE. . . . . . .  C ADDR   0017H   R   SEG=_CODE
-XPAGE. . . . . . .  D ADDR   0091H   A   
-A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 13:52:29 PAGE     9
+A51 MACRO ASSEMBLER  PROCESS_B                                                            04/24/2016 15:11:07 PAGE     9
 
-_CODE. . . . . . .  C SEG    0033H       REL=UNIT
+XPAGE. . . . . . .  D ADDR   0091H   A   
+_CODE. . . . . . .  C SEG    003BH       REL=UNIT
 _DATA. . . . . . .  D SEG    0001H       REL=UNIT
 
 
