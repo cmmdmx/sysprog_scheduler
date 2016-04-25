@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  PROCESS_A                                                            04/24/2016 17:40:24 PAGE     1
+A51 MACRO ASSEMBLER  PROCESS_A                                                            04/25/2016 02:49:05 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
   00B1          +1    55     sfr   SYSCON = 0xB1;
   00B8          +1    56     sfr   IEN1   = 0xB8;
   00B9          +1    57     sfr   IP1    = 0xB9;
-A51 MACRO ASSEMBLER  PROCESS_A                                                            04/24/2016 17:40:24 PAGE     2
+A51 MACRO ASSEMBLER  PROCESS_A                                                            04/25/2016 02:49:05 PAGE     2
 
   00BA          +1    58     sfr   S0RELH = 0xBA;
   00BB          +1    59     sfr   S1RELH = 0xBB;
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
   00ED          +1   121     sfr   MD4    = 0xED;
   00EE          +1   122     sfr   MD5    = 0xEE;
   00EF          +1   123     sfr   ARCON  = 0xEF;
-A51 MACRO ASSEMBLER  PROCESS_A                                                            04/24/2016 17:40:24 PAGE     3
+A51 MACRO ASSEMBLER  PROCESS_A                                                            04/25/2016 02:49:05 PAGE     3
 
                 +1   124     
   00F0          +1   125     sfr   B      = 0xF0;
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
   009E          +1   187     sbit  SM1    = 0x9E;
   009D          +1   188     sbit  SM20   = 0x9D;
   009C          +1   189     sbit  REN0   = 0x9C;
-A51 MACRO ASSEMBLER  PROCESS_A                                                            04/24/2016 17:40:24 PAGE     4
+A51 MACRO ASSEMBLER  PROCESS_A                                                            04/25/2016 02:49:05 PAGE     4
 
   009B          +1   190     sbit  TB80   = 0x9B;
   009A          +1   191     sbit  RB80   = 0x9A;
@@ -257,26 +257,30 @@ LOC  OBJ            LINE     SOURCE
 0015 120000   F      240                     CALL write
 0018 75F065          241                     MOV B, #'e'
 001B 120000   F      242                     CALL write
-001E 22              243                     RET
+001E 8011            243                     JMP donothing
                      244                     
-001F                 245             write:  
-001F C2AF            246                     CLR EAL                                                 ; deactivate global
+0020                 245             write:  
+0020 C2AF            246                     CLR EAL                                                 ; deactivate global
                               interrupts
-0021 85F099          247                     MOV S0BUF, B                                    ; move B to serial device 0
+0022 85F099          247                     MOV S0BUF, B                                    ; move B to serial device 0
                               output
-0024                 248             loop:
-0024 D2AE            249                     SETB WDT                                                ; refresh watchdog
-0026 D2BE            250                     SETB SWDT
-0028 3099F9          251                     JNB TI0, loop
-002B C299            252                     CLR TI0
-A51 MACRO ASSEMBLER  PROCESS_A                                                            04/24/2016 17:40:24 PAGE     5
+0025                 248             loop:
+0025 D2AE            249                     SETB WDT                                                ; refresh watchdog
+0027 D2BE            250                     SETB SWDT
+0029 3099F9          251                     JNB TI0, loop
+002C C299            252                     CLR TI0
+A51 MACRO ASSEMBLER  PROCESS_A                                                            04/25/2016 02:49:05 PAGE     5
 
-002D D2AF            253                     SETB EAL                                                ; activate interrup
+002E D2AF            253                     SETB EAL                                                ; activate interrup
                              ts after sending to serial
-002F 22              254                     RET
+0030 22              254                     RET
                      255                     
-                     256     END
-A51 MACRO ASSEMBLER  PROCESS_A                                                            04/24/2016 17:40:24 PAGE     6
+0031                 256             donothing:
+0031 D2AE            257                     SETB WDT
+0033 D2BE            258                     SETB SWDT
+0035 80FA            259                     JMP donothing
+                     260     END
+A51 MACRO ASSEMBLER  PROCESS_A                                                            04/25/2016 02:49:05 PAGE     6
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -344,7 +348,7 @@ COMCLRL. . . . . .  D ADDR   00A3H   A
 COMSET . . . . . .    ----   -----       
 COMSETH. . . . . .  D ADDR   00A2H   A   
 COMSETL. . . . . .  D ADDR   00A1H   A   
-A51 MACRO ASSEMBLER  PROCESS_A                                                            04/24/2016 17:40:24 PAGE     7
+A51 MACRO ASSEMBLER  PROCESS_A                                                            04/25/2016 02:49:05 PAGE     7
 
 CRC. . . . . . . .    ----   -----       
 CRCH . . . . . . .  D ADDR   00CBH   A   
@@ -354,6 +358,7 @@ CTREL. . . . . . .    ----   -----
 CTRELH . . . . . .  D ADDR   00DFH   A   
 CTRELL . . . . . .  D ADDR   00DEH   A   
 CY . . . . . . . .  B ADDR   00D0H.7 A   
+DONOTHING. . . . .  C ADDR   0031H   R   SEG=_CODE
 DPH. . . . . . . .  D ADDR   0083H   A   
 DPL. . . . . . . .  D ADDR   0082H   A   
 DPSEL. . . . . . .  D ADDR   0092H   A   
@@ -395,7 +400,7 @@ IRCON0 . . . . . .  D ADDR   00C0H   A
 IRCON1 . . . . . .  D ADDR   00D1H   A   
 IT0. . . . . . . .  B ADDR   0088H.0 A   
 IT1. . . . . . . .  B ADDR   0088H.2 A   
-LOOP . . . . . . .  C ADDR   0024H   R   SEG=_CODE
+LOOP . . . . . . .  C ADDR   0025H   R   SEG=_CODE
 MD0. . . . . . . .  D ADDR   00E9H   A   
 MD1. . . . . . . .  D ADDR   00EAH   A   
 MD2. . . . . . . .  D ADDR   00EBH   A   
@@ -411,9 +416,9 @@ P0 . . . . . . . .  D ADDR   0080H   A
 P1 . . . . . . . .  D ADDR   0090H   A   
 P2 . . . . . . . .  D ADDR   00A0H   A   
 P3 . . . . . . . .  D ADDR   00B0H   A   
-P4 . . . . . . . .  D ADDR   00E8H   A   
-A51 MACRO ASSEMBLER  PROCESS_A                                                            04/24/2016 17:40:24 PAGE     8
+A51 MACRO ASSEMBLER  PROCESS_A                                                            04/25/2016 02:49:05 PAGE     8
 
+P4 . . . . . . . .  D ADDR   00E8H   A   
 P5 . . . . . . . .  D ADDR   00F8H   A   
 P6 . . . . . . . .  D ADDR   00FAH   A   
 P7 . . . . . . . .  D ADDR   00DBH   A   
@@ -475,9 +480,9 @@ WDTH . . . . . . .  D ADDR   0085H   A
 WDTL . . . . . . .  D ADDR   0084H   A   
 WDTREL . . . . . .  D ADDR   0086H   A   
 WR . . . . . . . .  B ADDR   00B0H.6 A   
-WRITE. . . . . . .  C ADDR   001FH   R   SEG=_CODE
+WRITE. . . . . . .  C ADDR   0020H   R   SEG=_CODE
 XPAGE. . . . . . .  D ADDR   0091H   A   
-_CODE. . . . . . .  C SEG    0030H       REL=UNIT
+_CODE. . . . . . .  C SEG    0037H       REL=UNIT
 
 
 REGISTER BANK(S) USED: 0 

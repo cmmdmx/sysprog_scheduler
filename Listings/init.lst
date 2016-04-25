@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  INIT                                                                 04/24/2016 17:40:24 PAGE     1
+A51 MACRO ASSEMBLER  INIT                                                                 04/25/2016 02:49:05 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
   00B1          +1    55     sfr   SYSCON = 0xB1;
   00B8          +1    56     sfr   IEN1   = 0xB8;
   00B9          +1    57     sfr   IP1    = 0xB9;
-A51 MACRO ASSEMBLER  INIT                                                                 04/24/2016 17:40:24 PAGE     2
+A51 MACRO ASSEMBLER  INIT                                                                 04/25/2016 02:49:05 PAGE     2
 
   00BA          +1    58     sfr   S0RELH = 0xBA;
   00BB          +1    59     sfr   S1RELH = 0xBB;
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
   00ED          +1   121     sfr   MD4    = 0xED;
   00EE          +1   122     sfr   MD5    = 0xEE;
   00EF          +1   123     sfr   ARCON  = 0xEF;
-A51 MACRO ASSEMBLER  INIT                                                                 04/24/2016 17:40:24 PAGE     3
+A51 MACRO ASSEMBLER  INIT                                                                 04/25/2016 02:49:05 PAGE     3
 
                 +1   124     
   00F0          +1   125     sfr   B      = 0xF0;
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
   009E          +1   187     sbit  SM1    = 0x9E;
   009D          +1   188     sbit  SM20   = 0x9D;
   009C          +1   189     sbit  REN0   = 0x9C;
-A51 MACRO ASSEMBLER  INIT                                                                 04/24/2016 17:40:24 PAGE     4
+A51 MACRO ASSEMBLER  INIT                                                                 04/25/2016 02:49:05 PAGE     4
 
   009B          +1   190     sbit  TB80   = 0x9B;
   009A          +1   191     sbit  RB80   = 0x9A;
@@ -267,7 +267,7 @@ LOC  OBJ            LINE     SOURCE
 0017 85209B          251             MOV S1CON, 0x20
 001A 22              252             RET
                      253     END
-A51 MACRO ASSEMBLER  INIT                                                                 04/24/2016 17:40:24 PAGE     5
+A51 MACRO ASSEMBLER  INIT                                                                 04/25/2016 02:49:05 PAGE     5
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -335,7 +335,7 @@ COMCLRL. . . . . .  D ADDR   00A3H   A
 COMSET . . . . . .    ----   -----       
 COMSETH. . . . . .  D ADDR   00A2H   A   
 COMSETL. . . . . .  D ADDR   00A1H   A   
-A51 MACRO ASSEMBLER  INIT                                                                 04/24/2016 17:40:24 PAGE     6
+A51 MACRO ASSEMBLER  INIT                                                                 04/25/2016 02:49:05 PAGE     6
 
 CRC. . . . . . . .    ----   -----       
 CRCH . . . . . . .  D ADDR   00CBH   A   
@@ -403,7 +403,7 @@ P0 . . . . . . . .  D ADDR   0080H   A
 P1 . . . . . . . .  D ADDR   0090H   A   
 P2 . . . . . . . .  D ADDR   00A0H   A   
 P3 . . . . . . . .  D ADDR   00B0H   A   
-A51 MACRO ASSEMBLER  INIT                                                                 04/24/2016 17:40:24 PAGE     7
+A51 MACRO ASSEMBLER  INIT                                                                 04/25/2016 02:49:05 PAGE     7
 
 P4 . . . . . . . .  D ADDR   00E8H   A   
 P5 . . . . . . . .  D ADDR   00F8H   A   
@@ -471,7 +471,7 @@ XPAGE. . . . . . .  D ADDR   0091H   A
 
 
 REGISTER BANK(S) USED: 0 
-A51 MACRO ASSEMBLER  INIT                                                                 04/24/2016 17:40:24 PAGE     8
+A51 MACRO ASSEMBLER  INIT                                                                 04/25/2016 02:49:05 PAGE     8
 
 
 

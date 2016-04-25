@@ -20,7 +20,7 @@ NAME process_a
 		CALL write
 		MOV B, #'e'
 		CALL write
-		RET
+		JMP donothing
 		
 	write:	
 		CLR EAL							; deactivate global interrupts
@@ -33,4 +33,8 @@ NAME process_a
 		SETB EAL						; activate interrupts after sending to serial
 		RET
 		
+	donothing:
+		SETB WDT
+		SETB SWDT
+		JMP donothing
 END

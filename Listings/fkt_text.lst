@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/24/2016 17:40:24 PAGE     1
+A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/25/2016 02:49:05 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02c
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
                      246             ;
 0020 EF              247             mov     a, r7
 0021 120000   F      248             call    Stelle4
-A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/24/2016 17:40:24 PAGE     2
+A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/25/2016 02:49:05 PAGE     2
 
 0024 E8              249             mov     a, r0
 0025 33              250             rlc     a
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
 0065 92D1            312                     mov     f1, c           ; sichern
 0067 A2E3            313             mov     c, acc.3
 0069 B0E1            314             anl     c, /acc.1
-A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/24/2016 17:40:24 PAGE     3
+A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/25/2016 02:49:05 PAGE     3
 
 006B 72D1            315                     orl     c, f1
 006D 92D1            316                     mov     f1, c
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
 00DD A2E3            378             mov     c, acc.3
 00DF 82E2            379             anl     c, acc.2
 00E1 B0E0            380             anl     c, /acc.0
-A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/24/2016 17:40:24 PAGE     4
+A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/25/2016 02:49:05 PAGE     4
 
 00E3 72D1            381                     orl     c, f1
 00E5 92D1            382                     mov     f1, c
@@ -225,7 +225,7 @@ LOC  OBJ            LINE     SOURCE
 0106 22              400             ret
                      401     
                      402     end
-A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/24/2016 17:40:24 PAGE     5
+A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/25/2016 02:49:05 PAGE     5
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -293,7 +293,7 @@ EAL. . . . . . . .  B ADDR   00A8H.7 A
 ES . . . . . . . .  B ADDR   00A8H.4 A   
 ET0. . . . . . . .  B ADDR   00A8H.1 A   
 ET1. . . . . . . .  B ADDR   00A8H.3 A   
-A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/24/2016 17:40:24 PAGE     6
+A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/25/2016 02:49:05 PAGE     6
 
 ET2. . . . . . . .  B ADDR   00A8H.5 A   
 EX0. . . . . . . .  B ADDR   00A8H.0 A   
@@ -361,7 +361,7 @@ RS1. . . . . . . .  B ADDR   00D0H.4 A
 RXD. . . . . . . .  B ADDR   00B0H.0 A   
 S0BUF. . . . . . .  D ADDR   0099H   A   
 S0CON. . . . . . .  D ADDR   0098H   A   
-A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/24/2016 17:40:24 PAGE     7
+A51 MACRO ASSEMBLER  FKT_TEXT                                                             04/25/2016 02:49:05 PAGE     7
 
 S0RELH . . . . . .  D ADDR   00BAH   A   
 S0RELL . . . . . .  D ADDR   00AAH   A   

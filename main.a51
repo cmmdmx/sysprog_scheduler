@@ -39,7 +39,7 @@ NAME main
 	JMP b_interrupt
 	
 	start:										; start routine
-	
+		
 		SETB EAL								; allow global interrupts
 		SETB ET0								; allow timer 0 interrupt
 		
